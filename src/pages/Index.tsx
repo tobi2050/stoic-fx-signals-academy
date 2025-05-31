@@ -1,81 +1,111 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, Users, BookOpen, Trophy, Star, Clock, DollarSign, Target, BarChart3 } from "lucide-react";
+import { TrendingUp, Users, BookOpen, Trophy, Star, Clock, DollarSign, Target, BarChart3, Plus } from "lucide-react";
+import { Navbar } from "@/components/navigation/Navbar";
+import { SignalCard } from "@/components/signals/SignalCard";
+import { CreateSignalModal } from "@/components/signals/CreateSignalModal";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState("signals");
+  const [createSignalOpen, setCreateSignalOpen] = useState(false);
+  const [signals, setSignals] = useState<any[]>([]);
+  const [topTraders, setTopTraders] = useState<any[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Mock data for signals
-  const signals = [
-    {
-      id: 1,
-      pair: "EUR/USD",
-      type: "BUY",
-      entry: "1.0895",
-      tp1: "1.0925",
-      tp2: "1.0955",
-      sl: "1.0865",
-      riskReward: "1:2",
-      provider: "Alex Thompson",
-      avatar: "/placeholder.svg",
-      rank: "Mentor",
-      successRate: 87,
-      time: "2 hours ago",
-      status: "Active",
-      pips: "+30"
-    },
-    {
-      id: 2,
-      pair: "GBP/JPY",
-      type: "SELL",
-      entry: "189.45",
-      tp1: "188.95",
-      tp2: "188.45",
-      sl: "189.95",
-      riskReward: "1:1.5",
-      provider: "Sarah Chen",
-      avatar: "/placeholder.svg",
-      rank: "Top Student",
-      successRate: 78,
-      time: "4 hours ago",
-      status: "Closed",
-      pips: "+50"
-    },
-    {
-      id: 3,
-      pair: "USD/JPY",
-      type: "BUY",
-      entry: "148.25",
-      tp1: "148.75",
-      tp2: "149.25",
-      sl: "147.75",
-      riskReward: "1:2",
-      provider: "Marcus Johnson",
-      avatar: "/placeholder.svg",
-      rank: "Student",
-      successRate: 65,
-      time: "6 hours ago",
-      status: "Active",
-      pips: "+15"
+  useEffect(() => {
+    fetchSignals();
+    fetchTopTraders();
+    if (user) {
+      fetchUserProfile();
     }
-  ];
+  }, [user]);
 
-  // Mock data for top traders
-  const topTraders = [
-    { name: "Alex Thompson", rank: 1, successRate: 87, totalSignals: 124, pips: 2150, type: "Real", level: "Mentor" },
-    { name: "Sarah Chen", rank: 2, successRate: 78, totalSignals: 98, pips: 1875, type: "Real", level: "Top Student" },
-    { name: "Marcus Johnson", rank: 3, successRate: 65, totalSignals: 156, pips: 1650, type: "Demo", level: "Student" },
-    { name: "Emma Wilson", rank: 4, successRate: 72, totalSignals: 89, pips: 1420, type: "Real", level: "Student" },
-  ];
+  const fetchSignals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('signals')
+        .select(`
+          *,
+          profiles (
+            username,
+            role,
+            success_rate,
+            avatar_url,
+            account_type
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setSignals(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch signals",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchTopTraders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('success_rate', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setTopTraders(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error", 
+        description: "Failed to fetch top traders",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) throw error;
+      setUserProfile(data);
+    } catch (error: any) {
+      console.log('Profile not found, user may need to complete signup');
+    }
+  };
+
+  const handleSignalCreated = () => {
+    fetchSignals();
+    fetchUserProfile();
+  };
+
+  const canCreateSignal = userProfile?.role === 'mentor';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <Navbar />
+      
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
@@ -85,16 +115,18 @@ const Index = () => {
               STOIC FX
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
-              Master Forex Trading with Professional Signals, Community Learning, and Expert Mentorship
+              Professional Forex Signals • Expert Mentorship • Trading Community
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3">
-                Start Learning Today
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900 px-8 py-3">
-                View Live Signals
-              </Button>
-            </div>
+            {user && userProfile && (
+              <div className="flex items-center justify-center space-x-4 mb-8">
+                <Badge variant={userProfile.role === 'mentor' ? 'default' : 'secondary'} className="text-lg px-4 py-2">
+                  {userProfile.role === 'mentor' ? '🎓 Mentor' : '📚 Student'}
+                </Badge>
+                <Badge variant={userProfile.account_type === 'real' ? 'default' : 'outline'} className="text-lg px-4 py-2">
+                  {userProfile.account_type === 'real' ? '💰 Real Account' : '🎮 Demo Account'}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* Stats Section */}
@@ -104,7 +136,7 @@ const Index = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Users className="h-6 w-6 text-blue-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">5,000+</div>
+                <div className="text-2xl font-bold text-white">{topTraders.length}+</div>
                 <div className="text-sm text-slate-400">Active Traders</div>
               </CardContent>
             </Card>
@@ -113,8 +145,10 @@ const Index = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Target className="h-6 w-6 text-green-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">87%</div>
-                <div className="text-sm text-slate-400">Success Rate</div>
+                <div className="text-2xl font-bold text-white">
+                  {topTraders.length > 0 ? Math.round(topTraders.reduce((acc, trader) => acc + trader.success_rate, 0) / topTraders.length) : 0}%
+                </div>
+                <div className="text-sm text-slate-400">Avg Success Rate</div>
               </CardContent>
             </Card>
             <Card className="bg-slate-800/50 border-slate-700 text-center">
@@ -122,8 +156,8 @@ const Index = () => {
                 <div className="flex items-center justify-center mb-2">
                   <BarChart3 className="h-6 w-6 text-purple-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">15,000+</div>
-                <div className="text-sm text-slate-400">Pips Generated</div>
+                <div className="text-2xl font-bold text-white">{signals.length}+</div>
+                <div className="text-sm text-slate-400">Signals Posted</div>
               </CardContent>
             </Card>
             <Card className="bg-slate-800/50 border-slate-700 text-center">
@@ -131,8 +165,10 @@ const Index = () => {
                 <div className="flex items-center justify-center mb-2">
                   <DollarSign className="h-6 w-6 text-yellow-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">$50K+</div>
-                <div className="text-sm text-slate-400">Giveaways</div>
+                <div className="text-2xl font-bold text-white">
+                  {topTraders.length > 0 ? topTraders.reduce((acc, trader) => acc + trader.total_pips, 0) : 0}
+                </div>
+                <div className="text-sm text-slate-400">Total Pips</div>
               </CardContent>
             </Card>
           </div>
@@ -144,121 +180,100 @@ const Index = () => {
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-slate-800 mb-8">
             <TabsTrigger value="signals" className="data-[state=active]:bg-blue-600">Live Signals</TabsTrigger>
+            <TabsTrigger value="inactive" className="data-[state=active]:bg-yellow-600">Inactive Signals</TabsTrigger>
             <TabsTrigger value="leaderboard" className="data-[state=active]:bg-purple-600">Leaderboard</TabsTrigger>
             <TabsTrigger value="education" className="data-[state=active]:bg-green-600">Education</TabsTrigger>
-            <TabsTrigger value="community" className="data-[state=active]:bg-orange-600">Community</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signals" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-white">Live Trading Signals</h2>
-              <Button className="bg-green-600 hover:bg-green-700">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Post Signal
-              </Button>
+              <h2 className="text-3xl font-bold text-white">Active Trading Signals</h2>
+              {canCreateSignal && (
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => setCreateSignalOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Post Signal
+                </Button>
+              )}
             </div>
             
             <div className="grid gap-6">
-              {signals.map((signal) => (
-                <Card key={signal.id} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <Avatar>
-                          <AvatarImage src={signal.avatar} />
-                          <AvatarFallback>{signal.provider.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-white font-semibold">{signal.provider}</span>
-                            <Badge variant={signal.rank === "Mentor" ? "default" : "secondary"}>
-                              {signal.rank}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-slate-400">{signal.time}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={signal.type === "BUY" ? "default" : "destructive"} className="text-lg px-3 py-1">
-                          {signal.type} {signal.pair}
-                        </Badge>
-                        <div className="text-sm text-slate-400 mt-1">R:R {signal.riskReward}</div>
-                      </div>
-                    </div>
-                  </CardHeader>
+              {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').map((signal) => (
+                <SignalCard key={signal.id} signal={signal} />
+              ))}
+              {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').length === 0 && (
+                <Card className="bg-slate-800/50 border-slate-700 text-center py-12">
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <div className="text-sm text-slate-400">Entry</div>
-                        <div className="text-white font-mono">{signal.entry}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-slate-400">TP1/TP2</div>
-                        <div className="text-green-400 font-mono">{signal.tp1}/{signal.tp2}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-slate-400">Stop Loss</div>
-                        <div className="text-red-400 font-mono">{signal.sl}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-slate-400">Current P&L</div>
-                        <div className={`font-semibold ${signal.pips.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                          {signal.pips} pips
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400" />
-                          <span className="text-white">{signal.successRate}%</span>
-                        </div>
-                        <Badge variant={signal.status === "Active" ? "default" : "secondary"}>
-                          {signal.status}
-                        </Badge>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">Share</Button>
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Rate Signal</Button>
-                      </div>
-                    </div>
+                    <TrendingUp className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-400">No active signals at the moment</p>
                   </CardContent>
                 </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="inactive" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-bold text-white">Inactive Signals</h2>
+              {canCreateSignal && (
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => setCreateSignalOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Post Signal
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid gap-6">
+              {signals.filter(signal => signal.status === 'inactive').map((signal) => (
+                <SignalCard key={signal.id} signal={signal} />
               ))}
+              {signals.filter(signal => signal.status === 'inactive').length === 0 && (
+                <Card className="bg-slate-800/50 border-slate-700 text-center py-12">
+                  <CardContent>
+                    <Clock className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-400">No inactive signals waiting to trigger</p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="leaderboard" className="space-y-6">
             <h2 className="text-3xl font-bold text-white">Top Traders Leaderboard</h2>
             <div className="grid gap-4">
-              {topTraders.map((trader) => (
-                <Card key={trader.rank} className="bg-slate-800/50 border-slate-700">
+              {topTraders.map((trader, index) => (
+                <Card key={trader.id} className="bg-slate-800/50 border-slate-700">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold">
-                          #{trader.rank}
+                          #{index + 1}
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <span className="text-white font-semibold text-lg">{trader.name}</span>
-                            <Badge variant={trader.level === "Mentor" ? "default" : "secondary"}>
-                              {trader.level}
+                            <span className="text-white font-semibold text-lg">{trader.username}</span>
+                            <Badge variant={trader.role === 'mentor' ? 'default' : 'secondary'}>
+                              {trader.role}
                             </Badge>
-                            <Badge variant={trader.type === "Real" ? "default" : "outline"}>
-                              {trader.type} Account
+                            <Badge variant={trader.account_type === 'real' ? 'default' : 'outline'}>
+                              {trader.account_type}
                             </Badge>
                           </div>
-                          <div className="text-slate-400">Success Rate: {trader.successRate}%</div>
+                          <div className="text-slate-400">Success Rate: {trader.success_rate.toFixed(1)}%</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-green-400">+{trader.pips}</div>
-                        <div className="text-slate-400">{trader.totalSignals} signals</div>
+                        <div className="text-2xl font-bold text-green-400">+{trader.total_pips}</div>
+                        <div className="text-slate-400">{trader.total_signals} signals</div>
                       </div>
                     </div>
                     <div className="mt-4">
-                      <Progress value={trader.successRate} className="h-2" />
+                      <Progress value={trader.success_rate} className="h-2" />
                     </div>
                   </CardContent>
                 </Card>
@@ -321,76 +336,14 @@ const Index = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="community" className="space-y-6">
-            <h2 className="text-3xl font-bold text-white">Trading Community</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Weekly Giveaway</CardTitle>
-                  <CardDescription>Win cash prizes and mentorship sessions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-400 mb-2">$500</div>
-                    <div className="text-slate-400 mb-4">This week's prize</div>
-                    <Button className="w-full bg-green-600 hover:bg-green-700">
-                      Enter Giveaway
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Referral Program</CardTitle>
-                  <CardDescription>Earn rewards for bringing friends</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-400 mb-2">$50</div>
-                    <div className="text-slate-400 mb-4">Per successful referral</div>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Share Link
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Live Webinars</CardTitle>
-                <CardDescription>Join our expert mentors for live trading sessions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
-                    <div>
-                      <div className="text-white font-semibold">Market Analysis with Alex Thompson</div>
-                      <div className="text-slate-400 flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        Tomorrow, 3:00 PM EST
-                      </div>
-                    </div>
-                    <Button size="sm">Join</Button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
-                    <div>
-                      <div className="text-white font-semibold">Risk Management Masterclass</div>
-                      <div className="text-slate-400 flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        Friday, 7:00 PM EST
-                      </div>
-                    </div>
-                    <Button size="sm">Register</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
+
+      <CreateSignalModal
+        open={createSignalOpen}
+        onOpenChange={setCreateSignalOpen}
+        onSignalCreated={handleSignalCreated}
+      />
     </div>
   );
 };

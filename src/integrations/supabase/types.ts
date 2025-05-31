@@ -9,7 +9,203 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string | null
+          following_id: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string | null
+          following_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          is_premium: boolean | null
+          last_name: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          success_rate: number | null
+          successful_signals: number | null
+          total_pips: number | null
+          total_signals: number | null
+          trading_experience_years: number | null
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          is_premium?: boolean | null
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          success_rate?: number | null
+          successful_signals?: number | null
+          total_pips?: number | null
+          total_signals?: number | null
+          trading_experience_years?: number | null
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          is_premium?: boolean | null
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          success_rate?: number | null
+          successful_signals?: number | null
+          total_pips?: number | null
+          total_signals?: number | null
+          trading_experience_years?: number | null
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      signal_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          rater_id: string | null
+          rating: number | null
+          signal_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rater_id?: string | null
+          rating?: number | null
+          signal_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rater_id?: string | null
+          rating?: number | null
+          signal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_ratings_rater_id_fkey"
+            columns: ["rater_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signal_ratings_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signals: {
+        Row: {
+          closed_at: string | null
+          created_at: string | null
+          description: string | null
+          entry_price: number
+          id: string
+          pair: string
+          pips_result: number | null
+          provider_id: string
+          risk_reward_ratio: string | null
+          signal_type: Database["public"]["Enums"]["signal_type"]
+          status: Database["public"]["Enums"]["signal_status"] | null
+          stop_loss: number
+          tp1: number | null
+          tp2: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          entry_price: number
+          id?: string
+          pair: string
+          pips_result?: number | null
+          provider_id: string
+          risk_reward_ratio?: string | null
+          signal_type: Database["public"]["Enums"]["signal_type"]
+          status?: Database["public"]["Enums"]["signal_status"] | null
+          stop_loss: number
+          tp1?: number | null
+          tp2?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          entry_price?: number
+          id?: string
+          pair?: string
+          pips_result?: number | null
+          provider_id?: string
+          risk_reward_ratio?: string | null
+          signal_type?: Database["public"]["Enums"]["signal_type"]
+          status?: Database["public"]["Enums"]["signal_status"] | null
+          stop_loss?: number
+          tp1?: number | null
+          tp2?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +214,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      account_type: "demo" | "real"
+      signal_status: "inactive" | "active" | "closed"
+      signal_type: "BUY" | "SELL"
+      user_role: "student" | "mentor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +332,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_type: ["demo", "real"],
+      signal_status: ["inactive", "active", "closed"],
+      signal_type: ["BUY", "SELL"],
+      user_role: ["student", "mentor"],
+    },
   },
 } as const

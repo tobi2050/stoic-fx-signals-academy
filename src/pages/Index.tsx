@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Users, BookOpen, Trophy, Star, Clock, DollarSign, Target, BarChart3, Plus } from "lucide-react";
+import { TrendingUp, Users, BookOpen, Trophy, Star, Clock, DollarSign, Target, BarChart3, Plus, Award, Activity } from "lucide-react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { SignalCard } from "@/components/signals/SignalCard";
 import { CreateSignalModal } from "@/components/signals/CreateSignalModal";
+import { ActiveTraders } from "@/components/dashboard/ActiveTraders";
+import { StatsCards } from "@/components/dashboard/StatsCards";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -46,7 +48,7 @@ const Index = () => {
           )
         `)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (error) throw error;
       setSignals(data || []);
@@ -65,7 +67,7 @@ const Index = () => {
         .from('profiles')
         .select('*')
         .order('success_rate', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (error) throw error;
       setTopTraders(data || []);
@@ -102,19 +104,21 @@ const Index = () => {
 
   const canCreateSignal = userProfile?.role === 'mentor';
 
+  const mentors = topTraders.filter(trader => trader.role === 'mentor');
+  const students = topTraders.filter(trader => trader.role === 'student');
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
-        <div className="relative container mx-auto px-4 py-20">
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               STOIC FX
             </h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Professional Forex Signals • Expert Mentorship • Trading Community
             </p>
             {user && userProfile && (
@@ -129,214 +133,182 @@ const Index = () => {
             )}
           </div>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            <Card className="bg-slate-800/50 border-slate-700 text-center">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center mb-2">
-                  <Users className="h-6 w-6 text-blue-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{topTraders.length}+</div>
-                <div className="text-sm text-slate-400">Active Traders</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-slate-800/50 border-slate-700 text-center">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center mb-2">
-                  <Target className="h-6 w-6 text-green-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">
-                  {topTraders.length > 0 ? Math.round(topTraders.reduce((acc, trader) => acc + trader.success_rate, 0) / topTraders.length) : 0}%
-                </div>
-                <div className="text-sm text-slate-400">Avg Success Rate</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-slate-800/50 border-slate-700 text-center">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center mb-2">
-                  <BarChart3 className="h-6 w-6 text-purple-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{signals.length}+</div>
-                <div className="text-sm text-slate-400">Signals Posted</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-slate-800/50 border-slate-700 text-center">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center mb-2">
-                  <DollarSign className="h-6 w-6 text-yellow-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">
-                  {topTraders.length > 0 ? topTraders.reduce((acc, trader) => acc + trader.total_pips, 0) : 0}
-                </div>
-                <div className="text-sm text-slate-400">Total Pips</div>
-              </CardContent>
-            </Card>
-          </div>
+          <StatsCards topTraders={topTraders} signals={signals} />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pb-20">
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800 mb-8">
-            <TabsTrigger value="signals" className="data-[state=active]:bg-blue-600">Live Signals</TabsTrigger>
-            <TabsTrigger value="inactive" className="data-[state=active]:bg-yellow-600">Inactive Signals</TabsTrigger>
-            <TabsTrigger value="leaderboard" className="data-[state=active]:bg-purple-600">Leaderboard</TabsTrigger>
-            <TabsTrigger value="education" className="data-[state=active]:bg-green-600">Education</TabsTrigger>
-          </TabsList>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Left Sidebar - Active Traders */}
+          <div className="lg:col-span-1">
+            <ActiveTraders mentors={mentors} students={students} />
+          </div>
 
-          <TabsContent value="signals" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-white">Active Trading Signals</h2>
-              {canCreateSignal && (
-                <Button 
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => setCreateSignalOpen(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Post Signal
-                </Button>
-              )}
-            </div>
-            
-            <div className="grid gap-6">
-              {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').map((signal) => (
-                <SignalCard key={signal.id} signal={signal} />
-              ))}
-              {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').length === 0 && (
-                <Card className="bg-slate-800/50 border-slate-700 text-center py-12">
-                  <CardContent>
-                    <TrendingUp className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-400">No active signals at the moment</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
+          {/* Main Content Area */}
+          <div className="lg:col-span-3">
+            <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 mb-8">
+                <TabsTrigger value="signals" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">Live Signals</TabsTrigger>
+                <TabsTrigger value="inactive" className="data-[state=active]:bg-yellow-50 data-[state=active]:text-yellow-700">Inactive Signals</TabsTrigger>
+                <TabsTrigger value="leaderboard" className="data-[state=active]:bg-purple-50 data-[state=active]:text-purple-700">Leaderboard</TabsTrigger>
+                <TabsTrigger value="education" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">Education</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="inactive" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-white">Inactive Signals</h2>
-              {canCreateSignal && (
-                <Button 
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => setCreateSignalOpen(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Post Signal
-                </Button>
-              )}
-            </div>
-            
-            <div className="grid gap-6">
-              {signals.filter(signal => signal.status === 'inactive').map((signal) => (
-                <SignalCard key={signal.id} signal={signal} />
-              ))}
-              {signals.filter(signal => signal.status === 'inactive').length === 0 && (
-                <Card className="bg-slate-800/50 border-slate-700 text-center py-12">
-                  <CardContent>
-                    <Clock className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-400">No inactive signals waiting to trigger</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="leaderboard" className="space-y-6">
-            <h2 className="text-3xl font-bold text-white">Top Traders Leaderboard</h2>
-            <div className="grid gap-4">
-              {topTraders.map((trader, index) => (
-                <Card key={trader.id} className="bg-slate-800/50 border-slate-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 font-bold">
-                          #{index + 1}
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-white font-semibold text-lg">{trader.username}</span>
-                            <Badge variant={trader.role === 'mentor' ? 'default' : 'secondary'}>
-                              {trader.role}
-                            </Badge>
-                            <Badge variant={trader.account_type === 'real' ? 'default' : 'outline'}>
-                              {trader.account_type}
-                            </Badge>
-                          </div>
-                          <div className="text-slate-400">Success Rate: {trader.success_rate.toFixed(1)}%</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-green-400">+{trader.total_pips}</div>
-                        <div className="text-slate-400">{trader.total_signals} signals</div>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Progress value={trader.success_rate} className="h-2" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="education" className="space-y-6">
-            <h2 className="text-3xl font-bold text-white">Educational Resources</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
-                <CardHeader>
-                  <BookOpen className="h-8 w-8 text-blue-400 mb-2" />
-                  <CardTitle className="text-white">Forex Fundamentals</CardTitle>
-                  <CardDescription>Master the basics of forex trading</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">Start Learning</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
-                <CardHeader>
-                  <BarChart3 className="h-8 w-8 text-green-400 mb-2" />
-                  <CardTitle className="text-white">Technical Analysis</CardTitle>
-                  <CardDescription>Learn chart patterns and indicators</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">Explore</Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-all duration-300">
-                <CardHeader>
-                  <Trophy className="h-8 w-8 text-purple-400 mb-2" />
-                  <CardTitle className="text-white">Risk Management</CardTitle>
-                  <CardDescription>Protect your capital effectively</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full">Learn More</Button>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-purple-500/30">
-              <CardHeader>
-                <CardTitle className="text-white text-xl">Premium Education</CardTitle>
-                <CardDescription>Unlock advanced trading strategies and mentorship</CardDescription>
-              </CardHeader>
-              <CardContent>
+              <TabsContent value="signals" className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-white text-2xl font-bold">$29/month</div>
-                    <div className="text-slate-300">Cancel anytime</div>
-                  </div>
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                    Start Free Trial
-                  </Button>
+                  <h2 className="text-3xl font-bold text-gray-900">Active Trading Signals</h2>
+                  {canCreateSignal && (
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => setCreateSignalOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post Signal
+                    </Button>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                
+                <div className="grid gap-6">
+                  {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').map((signal) => (
+                    <SignalCard key={signal.id} signal={signal} />
+                  ))}
+                  {signals.filter(signal => signal.status === 'active' || signal.status === 'closed').length === 0 && (
+                    <Card className="bg-white border-gray-200 text-center py-12">
+                      <CardContent>
+                        <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No active signals at the moment</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="inactive" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-3xl font-bold text-gray-900">Inactive Signals</h2>
+                  {canCreateSignal && (
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => setCreateSignalOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post Signal
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="grid gap-6">
+                  {signals.filter(signal => signal.status === 'inactive').map((signal) => (
+                    <SignalCard key={signal.id} signal={signal} />
+                  ))}
+                  {signals.filter(signal => signal.status === 'inactive').length === 0 && (
+                    <Card className="bg-white border-gray-200 text-center py-12">
+                      <CardContent>
+                        <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No inactive signals waiting to trigger</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="leaderboard" className="space-y-6">
+                <h2 className="text-3xl font-bold text-gray-900">Top Traders Leaderboard</h2>
+                <div className="grid gap-4">
+                  {topTraders.map((trader, index) => (
+                    <Card key={trader.id} className="bg-white border-gray-200 hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold">
+                              #{index + 1}
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-900 font-semibold text-lg">{trader.username}</span>
+                                <Badge variant={trader.role === 'mentor' ? 'default' : 'secondary'}>
+                                  {trader.role}
+                                </Badge>
+                                <Badge variant={trader.account_type === 'real' ? 'default' : 'outline'}>
+                                  {trader.account_type}
+                                </Badge>
+                              </div>
+                              <div className="text-gray-500">Success Rate: {trader.success_rate?.toFixed(1)}%</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-green-600">+{trader.total_pips}</div>
+                            <div className="text-gray-500">{trader.total_signals} signals</div>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <Progress value={trader.success_rate || 0} className="h-2" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="education" className="space-y-6">
+                <h2 className="text-3xl font-bold text-gray-900">Educational Resources</h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-all duration-300">
+                    <CardHeader>
+                      <BookOpen className="h-8 w-8 text-blue-600 mb-2" />
+                      <CardTitle className="text-gray-900">Forex Fundamentals</CardTitle>
+                      <CardDescription>Master the basics of forex trading</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700">Start Learning</Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-all duration-300">
+                    <CardHeader>
+                      <BarChart3 className="h-8 w-8 text-green-600 mb-2" />
+                      <CardTitle className="text-gray-900">Technical Analysis</CardTitle>
+                      <CardDescription>Learn chart patterns and indicators</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full bg-green-600 hover:bg-green-700">Explore</Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-all duration-300">
+                    <CardHeader>
+                      <Trophy className="h-8 w-8 text-purple-600 mb-2" />
+                      <CardTitle className="text-gray-900">Risk Management</CardTitle>
+                      <CardDescription>Protect your capital effectively</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700">Learn More</Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="text-gray-900 text-xl">Premium Education</CardTitle>
+                    <CardDescription>Unlock advanced trading strategies and mentorship</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="text-gray-900 text-2xl font-bold">$29/month</div>
+                        <div className="text-gray-600">Cancel anytime</div>
+                      </div>
+                      <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+                        Start Free Trial
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
 
       <CreateSignalModal

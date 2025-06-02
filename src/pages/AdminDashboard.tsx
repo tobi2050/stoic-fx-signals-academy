@@ -27,7 +27,7 @@ export default function AdminDashboard() {
     { label: 'Manage Users', action: () => navigate('/admin/users'), icon: Users, color: 'text-blue-600' },
     { label: 'Approve Mentors', action: () => navigate('/admin/content'), icon: UserCheck, color: 'text-green-600' },
     { label: 'Review Reports', action: () => navigate('/admin/content'), icon: AlertTriangle, color: 'text-red-600' },
-    { label: 'View Tickets', action: () => {}, icon: MessageSquare, color: 'text-purple-600' }
+    { label: 'View Tickets', action: () => navigate('/admin/support'), icon: MessageSquare, color: 'text-purple-600' }
   ];
 
   return (
@@ -42,14 +42,18 @@ export default function AdminDashboard() {
               { label: 'User Management', icon: Users, path: '/admin/users' },
               { label: 'Signals & Mentors', icon: TrendingUp, path: '/signals' },
               { label: 'Content Moderation', icon: MessageSquare, path: '/admin/content' },
-              { label: 'Support Tickets', icon: AlertTriangle, path: '/support' },
+              { label: 'Support Tickets', icon: AlertTriangle, path: '/admin/support' },
               { label: 'Platform Analytics', icon: BarChart3, path: '/analytics' },
               { label: 'Admin Settings', icon: Settings, path: '/settings' }
             ].map((item) => (
               <button
                 key={item.label}
                 onClick={() => navigate(item.path)}
-                className="w-full flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                  item.path === '/admin' 
+                    ? 'bg-purple-600 text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                }`}
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { Watchlist } from '@/components/dashboard/Watchlist';
-import { CalendarComponent } from '@/components/dashboard/CalendarComponent';
+import { WatchlistModal } from '@/components/modals/WatchlistModal';
+import { CalendarModal } from '@/components/modals/CalendarModal';
 import { 
   Heart, 
   MessageCircle, 
@@ -19,12 +18,15 @@ import {
   Users,
   BookOpen,
   Gift,
-  X
+  X,
+  Eye
 } from 'lucide-react';
 
 export default function Dashboard() {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [newPost, setNewPost] = useState('');
+  const [showWatchlist, setShowWatchlist] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleCreatePost = () => {
     if (newPost.trim()) {
@@ -88,6 +90,39 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Watchlist and Calendar Cards */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setShowWatchlist(true)}>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>My Watchlist</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center text-gray-500">
+                    <Eye className="h-8 w-8 mx-auto mb-2" />
+                    <p>Click to view watchlist</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setShowCalendar(true)}>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5" />
+                    <span>Calendar</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center text-gray-500">
+                    <Calendar className="h-8 w-8 mx-auto mb-2" />
+                    <p>Click to view calendar</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Create Post Section */}
             {showCreatePost && (
               <Card className="border-purple-200 bg-purple-50">
@@ -228,10 +263,10 @@ export default function Dashboard() {
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Watchlist */}
-            <Watchlist />
+            {/* <Watchlist /> */}
 
             {/* Calendar */}
-            <CalendarComponent />
+            {/* <CalendarComponent /> */}
 
             {/* Trending Topics */}
             <Card>
@@ -305,6 +340,10 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
+
+        {/* Modals */}
+        <WatchlistModal open={showWatchlist} onOpenChange={setShowWatchlist} />
+        <CalendarModal open={showCalendar} onOpenChange={setShowCalendar} />
       </div>
     </MainLayout>
   );

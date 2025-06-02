@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
@@ -16,6 +17,9 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('student');
+  const [hasAcademy, setHasAcademy] = useState(false);
+  const [academyName, setAcademyName] = useState('');
+  const [telegramLink, setTelegramLink] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -33,9 +37,22 @@ export default function Auth() {
           title: "Success",
           description: "Logged in successfully!",
         });
-        navigate('/');
+        
+        // Navigate based on role (for demo purposes, we'll check email for admin)
+        if (email.includes('admin')) {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       } else {
-        const { error } = await signUp(email, password, { role });
+        const userData: any = { role };
+        
+        if (role === 'mentor' && hasAcademy) {
+          userData.academy_name = academyName;
+          userData.telegram_link = telegramLink;
+        }
+        
+        const { error } = await signUp(email, password, userData);
         if (error) throw error;
         toast({
           title: "Success", 
@@ -112,18 +129,59 @@ export default function Auth() {
             </div>
 
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="role">Login as:</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="mentor">Mentor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Login as:</Label>
+                  <Select value={role} onValueChange={setRole}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="mentor">Mentor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {role === 'mentor' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="hasAcademy"
+                        checked={hasAcademy}
+                        onCheckedChange={(checked) => setHasAcademy(checked as boolean)}
+                      />
+                      <Label htmlFor="hasAcademy">Do you run an academy?</Label>
+                    </div>
+                    
+                    {hasAcademy && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="academyName">Academy Name</Label>
+                          <Input
+                            id="academyName"
+                            value={academyName}
+                            onChange={(e) => setAcademyName(e.target.value)}
+                            placeholder="Enter your academy name"
+                            className="h-12"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="telegramLink">Telegram Link</Label>
+                          <Input
+                            id="telegramLink"
+                            value={telegramLink}
+                            onChange={(e) => setTelegramLink(e.target.value)}
+                            placeholder="https://t.me/youracademy"
+                            className="h-12"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
             )}
 
             <Button

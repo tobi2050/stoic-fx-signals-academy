@@ -9,6 +9,19 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
+import Rankings from "./pages/Rankings";
+import Wallet from "./pages/Wallet";
+import ReferralProgram from "./pages/ReferralProgram";
+import Signals from "./pages/Signals";
+import Learn from "./pages/Learn";
+import Community from "./pages/Community";
+import CreateContent from "./pages/CreateContent";
+import CreateGiveaway from "./pages/CreateGiveaway";
+import ShareTrade from "./pages/ShareTrade";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserManagement from "./pages/UserManagement";
+import ContentModeration from "./pages/ContentModeration";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +72,7 @@ function AppRoutes() {
         path="/signals" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Signals />
           </ProtectedRoute>
         } 
       />
@@ -67,7 +80,7 @@ function AppRoutes() {
         path="/learn" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Learn />
           </ProtectedRoute>
         } 
       />
@@ -75,7 +88,7 @@ function AppRoutes() {
         path="/community" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Community />
           </ProtectedRoute>
         } 
       />
@@ -83,7 +96,7 @@ function AppRoutes() {
         path="/profile" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Profile />
           </ProtectedRoute>
         } 
       />
@@ -91,7 +104,7 @@ function AppRoutes() {
         path="/rankings" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Rankings />
           </ProtectedRoute>
         } 
       />
@@ -99,7 +112,7 @@ function AppRoutes() {
         path="/wallet" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Wallet />
           </ProtectedRoute>
         } 
       />
@@ -107,7 +120,55 @@ function AppRoutes() {
         path="/referral" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <ReferralProgram />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/share-trade" 
+        element={
+          <ProtectedRoute>
+            <ShareTrade />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/create-content" 
+        element={
+          <ProtectedRoute>
+            <CreateContent />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/create-giveaway" 
+        element={
+          <ProtectedRoute>
+            <CreateGiveaway />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/users" 
+        element={
+          <ProtectedRoute>
+            <UserManagement />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/content" 
+        element={
+          <ProtectedRoute>
+            <ContentModeration />
           </ProtectedRoute>
         } 
       />

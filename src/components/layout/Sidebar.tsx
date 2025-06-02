@@ -12,7 +12,8 @@ import {
   User, 
   Trophy, 
   Wallet, 
-  Gift
+  Gift,
+  Share
 } from 'lucide-react';
 
 const navigationItems = [
@@ -23,7 +24,8 @@ const navigationItems = [
   { id: 'profile', label: 'Profile', icon: User, path: '/profile' },
   { id: 'rankings', label: 'Rankings', icon: Trophy, path: '/rankings' },
   { id: 'wallet', label: 'Wallet', icon: Wallet, path: '/wallet' },
-  { id: 'referral', label: 'Referral Program', icon: Gift, path: '/referral' }
+  { id: 'referral', label: 'Referral Program', icon: Gift, path: '/referral' },
+  { id: 'share-trade', label: 'Share Trade', icon: Share, path: '/share-trade' }
 ];
 
 export function Sidebar() {
@@ -34,6 +36,10 @@ export function Sidebar() {
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -57,7 +63,7 @@ export function Sidebar() {
           return (
             <button
               key={item.id}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all ${
                 active 
                   ? 'bg-purple-50 text-purple-700 border-r-2 border-purple-600' 

@@ -1,10 +1,12 @@
 
+import { useState } from 'react';
 import { Search, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationPopup } from '@/components/notifications/NotificationPopup';
 
 interface TopNavbarProps {
   title: string;
@@ -12,6 +14,7 @@ interface TopNavbarProps {
 
 export function TopNavbar({ title }: TopNavbarProps) {
   const { user } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -21,7 +24,7 @@ export function TopNavbar({ title }: TopNavbarProps) {
         <div className="flex items-center space-x-4">
           {/* Wallet Balance */}
           <div className="text-right">
-            <div className="text-lg font-bold text-purple-600">₦1,000.00</div>
+            <div className="text-lg font-bold text-purple-600">₦5,000.00</div>
             <div className="text-sm text-gray-500">Wallet Balance</div>
           </div>
           
@@ -36,12 +39,21 @@ export function TopNavbar({ title }: TopNavbarProps) {
           
           {/* Notifications */}
           <div className="relative">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
               <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
+              <div className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
                 1
-              </Badge>
+              </div>
             </Button>
+            
+            {showNotifications && (
+              <NotificationPopup onClose={() => setShowNotifications(false)} />
+            )}
           </div>
           
           {/* User Avatar */}

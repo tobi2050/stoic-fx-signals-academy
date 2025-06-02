@@ -1,12 +1,16 @@
 
+import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Share2, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, Share2, Trophy, Rocket, Gift } from 'lucide-react';
 
 export default function Community() {
+  const navigate = useNavigate();
+
   const communityPosts = [
     {
       id: 1,
@@ -64,14 +68,67 @@ export default function Community() {
   return (
     <MainLayout title="Community">
       <div className="space-y-6">
-        {/* Create Post Button */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Community Posts</h1>
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Post
-          </Button>
+        {/* Community Action Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Trader Rankings */}
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/rankings')}>
+            <CardContent className="p-6 text-center">
+              <Trophy className="h-12 w-12 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Trader Rankings</h3>
+              <p className="opacity-90 mb-4">See who's leading</p>
+              <Button variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
+                View Rankings
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Mentorship Program */}
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/create-content')}>
+            <CardContent className="p-6 text-center">
+              <Rocket className="h-12 w-12 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Mentorship Program</h3>
+              <p className="opacity-90 mb-4">Apply for guidance</p>
+              <Button variant="secondary" className="bg-white text-green-600 hover:bg-gray-100">
+                Create New Content
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Giveaways */}
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/create-giveaway')}>
+            <CardContent className="p-6 text-center">
+              <Gift className="h-12 w-12 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Giveaways</h3>
+              <p className="opacity-90 mb-4">Win cash prizes!</p>
+              <Button variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
+                Create New Giveaway
+              </Button>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Connect with Stoic FX */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Connect with Stoic FX</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center space-x-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-white font-bold text-lg">T</span>
+                </div>
+                <span className="text-sm text-gray-700">Telegram</span>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-white font-bold text-lg">I</span>
+                </div>
+                <span className="text-sm text-gray-700">Instagram</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Content */}

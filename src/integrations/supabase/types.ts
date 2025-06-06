@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          mentor_dm_fee: number | null
+          minimum_win_rate_for_paid_signals: number | null
+          paid_signals_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mentor_dm_fee?: number | null
+          minimum_win_rate_for_paid_signals?: number | null
+          paid_signals_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mentor_dm_fee?: number | null
+          minimum_win_rate_for_paid_signals?: number | null
+          paid_signals_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string | null
@@ -151,9 +178,13 @@ export type Database = {
           description: string | null
           entry_price: number
           id: string
+          image_url: string | null
+          is_paid: boolean | null
           pair: string
           pips_result: number | null
+          price: number | null
           provider_id: string
+          risk_level: string | null
           risk_reward_ratio: string | null
           signal_type: Database["public"]["Enums"]["signal_type"]
           status: Database["public"]["Enums"]["signal_status"] | null
@@ -168,9 +199,13 @@ export type Database = {
           description?: string | null
           entry_price: number
           id?: string
+          image_url?: string | null
+          is_paid?: boolean | null
           pair: string
           pips_result?: number | null
+          price?: number | null
           provider_id: string
+          risk_level?: string | null
           risk_reward_ratio?: string | null
           signal_type: Database["public"]["Enums"]["signal_type"]
           status?: Database["public"]["Enums"]["signal_status"] | null
@@ -185,9 +220,13 @@ export type Database = {
           description?: string | null
           entry_price?: number
           id?: string
+          image_url?: string | null
+          is_paid?: boolean | null
           pair?: string
           pips_result?: number | null
+          price?: number | null
           provider_id?: string
+          risk_level?: string | null
           risk_reward_ratio?: string | null
           signal_type?: Database["public"]["Enums"]["signal_type"]
           status?: Database["public"]["Enums"]["signal_status"] | null

@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -22,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UserManagement from "./pages/UserManagement";
 import ContentModeration from "./pages/ContentModeration";
 import SupportTickets from "./pages/SupportTickets";
+import FeatureManagement from "./pages/FeatureManagement";
 
 const queryClient = new QueryClient();
 
@@ -177,6 +179,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <SupportTickets />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/features" 
+        element={
+          <ProtectedRoute>
+            <FeatureManagement />
           </ProtectedRoute>
         } 
       />

@@ -2,142 +2,179 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Users, 
+  TrendingUp, 
+  DollarSign, 
+  Settings,
+  MessageSquare,
+  FileText,
+  LifeBuoy,
+  Shield,
+  BarChart3
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Users, TrendingUp, DollarSign, MessageSquare, UserCheck, AlertTriangle, Settings, BarChart3 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
   const stats = [
-    { title: 'Total Users', value: '7', icon: Users, color: 'bg-blue-500' },
-    { title: 'Active Today', value: '340', icon: UserCheck, color: 'bg-green-500' },
-    { title: 'Signals Posted', value: '4', icon: TrendingUp, color: 'bg-purple-500' },
-    { title: 'Premium Subs', value: '4', icon: DollarSign, color: 'bg-orange-500' }
+    {
+      title: "Total Users",
+      value: "2,543",
+      change: "+12%",
+      icon: Users,
+      color: "text-blue-600"
+    },
+    {
+      title: "Active Signals", 
+      value: "156",
+      change: "+5%",
+      icon: TrendingUp,
+      color: "text-green-600"
+    },
+    {
+      title: "Revenue",
+      value: "$12,480",
+      change: "+23%",
+      icon: DollarSign,
+      color: "text-purple-600"
+    },
+    {
+      title: "Support Tickets",
+      value: "23",
+      change: "-8%",
+      icon: LifeBuoy,
+      color: "text-orange-600"
+    }
   ];
 
-  const recentActivity = [
-    { action: 'ChidinmaO joined the platform.', time: '10 mins ago', icon: Users, color: 'text-green-600' },
-    { action: 'ProFXMentor posted a new EUR/USD signal.', time: '30 mins ago', icon: TrendingUp, color: 'text-purple-600' },
-    { action: 'FatimaA upgraded to Pro Trader plan.', time: '1 hour ago', icon: DollarSign, color: 'text-yellow-600' },
-    { action: 'Oluwatobi created a new post in community.', time: '2 hours ago', icon: MessageSquare, color: 'text-blue-600' },
-    { action: 'AdminUser reviewed reported content.', time: '5 hours ago', icon: AlertTriangle, color: 'text-red-600' }
-  ];
-
-  const quickActions = [
-    { label: 'Manage Users', action: () => navigate('/admin/users'), icon: Users, color: 'text-blue-600' },
-    { label: 'Approve Mentors', action: () => navigate('/admin/content'), icon: UserCheck, color: 'text-green-600' },
-    { label: 'Review Reports', action: () => navigate('/admin/content'), icon: AlertTriangle, color: 'text-red-600' },
-    { label: 'View Tickets', action: () => navigate('/admin/support'), icon: MessageSquare, color: 'text-purple-600' }
+  const adminActions = [
+    {
+      title: "User Management",
+      description: "Manage user accounts, roles, and permissions",
+      icon: Users,
+      action: () => navigate('/admin/users'),
+      color: "bg-blue-100 text-blue-600"
+    },
+    {
+      title: "Content Moderation",
+      description: "Review and moderate user-generated content",
+      icon: FileText,
+      action: () => navigate('/admin/content'),
+      color: "bg-green-100 text-green-600"
+    },
+    {
+      title: "Support Tickets",
+      description: "Handle user support requests and issues",
+      icon: LifeBuoy,
+      action: () => navigate('/admin/support'),
+      color: "bg-orange-100 text-orange-600"
+    },
+    {
+      title: "Feature Management",
+      description: "Control app features and settings",
+      icon: Settings,
+      action: () => navigate('/admin/features'),
+      color: "bg-purple-100 text-purple-600"
+    },
+    {
+      title: "Analytics",
+      description: "View detailed analytics and reports",
+      icon: BarChart3,
+      action: () => navigate('/admin/analytics'),
+      color: "bg-indigo-100 text-indigo-600"
+    },
+    {
+      title: "Security",
+      description: "Monitor security and fraud detection",
+      icon: Shield,
+      action: () => navigate('/admin/security'),
+      color: "bg-red-100 text-red-600"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Admin Sidebar */}
-      <div className="flex">
-        <div className="w-64 bg-gray-800 h-screen p-4">
-          <div className="text-white font-bold text-xl mb-8">Admin Panel</div>
-          <nav className="space-y-2">
-            {[
-              { label: 'Dashboard Overview', icon: BarChart3, path: '/admin' },
-              { label: 'User Management', icon: Users, path: '/admin/users' },
-              { label: 'Signals & Mentors', icon: TrendingUp, path: '/signals' },
-              { label: 'Content Moderation', icon: MessageSquare, path: '/admin/content' },
-              { label: 'Support Tickets', icon: AlertTriangle, path: '/admin/support' },
-              { label: 'Platform Analytics', icon: BarChart3, path: '/analytics' },
-              { label: 'Admin Settings', icon: Settings, path: '/settings' }
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-                  item.path === '/admin' 
-                    ? 'bg-purple-600 text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                }`}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
-          
-          <Button
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="w-full mt-8 text-gray-300 border-gray-600 hover:bg-gray-700"
-          >
-            Back to Main App
-          </Button>
+    <MainLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600">Manage and monitor the Nexus platform</p>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          <h1 className="text-3xl font-bold text-white mb-8">Dashboard Overview</h1>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat) => (
-              <Card key={stat.title} className="bg-gray-800 border-gray-700">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-400 text-sm">{stat.title}</p>
-                      <p className="text-3xl font-bold text-white">{stat.value}</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <Badge variant={stat.change.startsWith('+') ? 'default' : 'destructive'} className="mt-1">
+                      {stat.change}
+                    </Badge>
+                  </div>
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {adminActions.map((action, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="h-auto p-4 justify-start"
+                  onClick={action.action}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2 rounded-lg ${action.color}`}>
+                      <action.icon className="h-5 w-5" />
                     </div>
-                    <div className={`p-3 rounded-lg ${stat.color}`}>
-                      <stat.icon className="h-6 w-6 text-white" />
+                    <div className="text-left">
+                      <p className="font-medium">{action.title}</p>
+                      <p className="text-sm text-gray-600">{action.description}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Activity */}
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <activity.icon className={`h-5 w-5 ${activity.color}`} />
-                      <div className="flex-1">
-                        <p className="text-gray-300 text-sm">{activity.action}</p>
-                        <p className="text-gray-500 text-xs">{activity.time}</p>
-                      </div>
-                    </div>
-                  ))}
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                "New user registered: trader123",
+                "Signal reported for review: EURUSD BUY",
+                "Payment processed: $25.00 premium subscription",
+                "Support ticket resolved: #2341"
+              ].map((activity, index) => (
+                <div key={index} className="flex items-center space-x-3 text-sm">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <span className="text-gray-600">{activity}</span>
+                  <span className="text-gray-400 ml-auto">2 hours ago</span>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  {quickActions.map((action) => (
-                    <Button
-                      key={action.label}
-                      variant="outline"
-                      onClick={action.action}
-                      className="h-20 flex flex-col items-center justify-center space-y-2 bg-gray-700 border-gray-600 hover:bg-gray-600 text-gray-300"
-                    >
-                      <action.icon className={`h-6 w-6 ${action.color}`} />
-                      <span className="text-sm">{action.label}</span>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </MainLayout>
   );
 }

@@ -40,11 +40,11 @@ export default function Signals() {
       }
 
       if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+        query = query.eq('status', statusFilter as 'inactive' | 'active' | 'closed');
       }
 
       if (typeFilter !== 'all') {
-        query = query.eq('signal_type', typeFilter);
+        query = query.eq('signal_type', typeFilter as 'BUY' | 'SELL');
       }
 
       const { data, error } = await query;
@@ -61,7 +61,7 @@ export default function Signals() {
   });
 
   return (
-    <MainLayout>
+    <MainLayout title="Trading Signals">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

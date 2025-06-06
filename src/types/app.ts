@@ -11,7 +11,7 @@ export interface UserProfile {
   username: string;
   first_name?: string;
   last_name?: string;
-  role: 'student' | 'mentor' | 'admin';
+  role: 'student' | 'mentor'; // Removed 'admin' to match database schema
   account_type: 'demo' | 'real';
   trading_experience_years?: number;
   avatar_url?: string;
